@@ -16,7 +16,12 @@ class Homestead
     config.vm.box = settings["box"] ||= "laravel/homestead"
     config.vm.box_version = settings["version"] ||= ">= 0"
     config.vm.hostname = settings["hostname"] ||= "homestead"
-    config.hostsupdater.aliases = []
+    
+    # Hosts Updater Config
+    if Vagrant.has_plugin?("vagrant-hostsupdater") && settings["hostsupdater"]
+      use_hostsupdater = true
+      config.hostsupdater.aliases = []
+    end
 
     # Configure A Private Network IP
     config.vm.network :private_network, ip: settings["ip"] ||= "192.168.10.10"
@@ -134,7 +139,9 @@ class Homestead
 
 
     settings["sites"].each do |site|
-      config.hostsupdater.aliases.push(site["map"])
+      if use_hostsupdater
+        config.hostsupdater.aliases.push(site["map"])
+      end
       
       type = site["type"] ||= "laravel"
 
